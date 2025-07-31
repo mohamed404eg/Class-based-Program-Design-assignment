@@ -1,0 +1,43 @@
+import tester.*;
+
+interface ILoNumber{
+	// produce true if the list contains even
+	boolean ContainEven();
+}
+
+
+class MtLoNumber implements ILoNumber{
+	public boolean ContainEven() {
+		return false;
+	}
+}
+
+
+class ConsLoNumber implements ILoNumber{
+	int first;
+	ILoNumber rest;
+	
+	ConsLoNumber(int first, ILoNumber rest){
+		this.first = first;
+		this.rest = rest;
+	}
+	public boolean ContainEven() {
+		return ((this.first % 2) == 0) && this.rest.ContainEven();
+	}
+	
+}
+
+
+class ExmaplesLoNumber{
+	ExmaplesLoNumber(){}
+	
+	ILoNumber l1 = new ConsLoNumber(6,new ConsLoNumber(5,new MtLoNumber()));
+	ILoNumber l2 = new ConsLoNumber(4,new ConsLoNumber(3,new MtLoNumber()));
+	
+	
+	boolean testILoNumberContainEven(Tester t) {
+		return t.checkExpect(l1.ContainEven(), true) &&
+				t.checkExpect( new ConsLoNumber(11,new ConsLoNumber(5,new MtLoNumber())).ContainEven(), false);		
+	}
+	
+}

@@ -1,0 +1,65 @@
+package p;
+import tester.*;
+
+
+
+
+interface IDocument {
+	
+}
+
+
+class Book implements IDocument{
+	String author;
+	String title;
+	ILoDocument bibliography;
+	String publishers;
+	
+	Book(String author, String title, ILoDocument bibliography, String publishers){
+		this.author = author;
+		this.title = title;
+		this.bibliography = bibliography;
+		this.publishers = publishers;
+	}
+}
+
+class Wikipedia implements IDocument{
+	String author;
+	String title;
+	ILoDocument bibliography;
+	String url;
+	
+	Wikipedia(String author, String title, ILoDocument bibliography, String url){
+		this.author = author;
+		this.title = title;
+		this.bibliography = bibliography;
+		this.url = url;
+	}
+}
+
+
+interface ILoDocument {
+
+	
+}
+
+class MtLoIDocument implements ILoDocument {
+	 
+ }
+ 
+class ConsIDocuments implements ILoDocument {
+	IDocument frist;
+	ILoDocument rest;
+	
+ }
+
+class ExamplesDocuments{
+	ExamplesDocuments(){}
+	
+	
+	
+	
+	
+	
+}
+

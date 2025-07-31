@@ -1,0 +1,26 @@
+import tester.*;
+
+interface ILoNumber{
+	
+}
+
+
+class MtLoNumber implements ILoNumber{
+	
+}
+
+
+class ConsLoNumber implements ILoNumber{
+	int first;
+	ILoNumber rest;
+	
+}
+
+
+class ExmaplesLoNumber{
+	ExmaplesLoNumber(){}
+	
+	
+	
+	
+}

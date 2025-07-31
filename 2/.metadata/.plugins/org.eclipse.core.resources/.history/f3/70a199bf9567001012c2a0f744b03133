@@ -1,0 +1,73 @@
+
+
+
+ interface IMotif {
+
+}
+
+
+class CrossStitchMotif implements IMotif {
+	String description;
+	int    difficulty;
+	
+	
+	CrossStitchMotif(String description, int difficulty){
+		this.description = description;
+		this.difficulty  = difficulty;
+	}
+	
+}
+
+class ChainStitchMotif implements IMotif {
+	String description;
+	int    difficulty;
+	
+	
+	ChainStitchMotif(String description, int difficulty){
+		this.description = description;
+		this.difficulty  = difficulty;
+	}
+	
+}
+
+interface ILoMotif {
+	
+}
+
+class MtLoMotif implements ILoMotif{
+	MtLoMotif(){}
+	
+}
+
+
+
+
+class GroupMotif  implements ILoMotif {
+	String description;
+	ILoMotif    motifs;
+	
+	GroupMotif(String description, ILoMotif motifs){
+		this.description = description;
+		this.motifs  = motifs;
+	}
+	
+}
+
+
+class EmbroideryPiece {
+	String name;
+	IMotif motif;
+	
+	EmbroideryPiece(String name, IMotif motif){
+		this.name  = name;
+		this.motif = motif;
+	}
+}
+
+
+ class ExamplesEmbroidery {
+	ExamplesEmbroidery(){}
+	
+	
+	
+}

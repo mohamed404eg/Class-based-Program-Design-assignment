@@ -1,0 +1,526 @@
+
+import tester.*;
+
+
+
+class author {
+	String firstName;
+	String lastName;
+	
+	author(String firstName, String lastName){
+		this.firstName = firstName;
+		this.lastName =  lastName;
+
+	}
+}
+
+
+interface IDocument {
+	// produce Format the entries as “Last name, First name. "Title".”
+	String formatOnlyBooks();
+	boolean isBook();
+	IDocument filterBook();
+	ILoString onlyBooks();
+	ILoDocument bibliography();
+}
+
+
+class Book implements IDocument{
+	author author;
+	String title;
+	ILoDocument bibliography;
+	String publishers;
+	
+	Book(author author, String title, ILoDocument bibliography, String publishers){
+		this.author = author;
+		this.title = title;
+		this.bibliography = bibliography;
+		this.publishers = publishers;
+	}
+	
+	public String formatOnlyBooks(){
+		return this.author.lastName +", "+ this.author.firstName+". "+"'"+this.title+"'";
+	}
+	
+	
+
+	public boolean isBook() {
+		return true;
+	}
+	
+	public IDocument filterBook() {
+		return new Book(this.author,this.title,this.bibliography.filterBook(),this.publishers);
+	}
+	
+	
+	public ILoString onlyBooks() {
+		 ILoString restBooks = this.bibliography.onlyBooks(); // استدعاء تكراري
+		    return new ConsLoString(this.formatOnlyBooks(), restBooks);
+	}
+	
+	public ILoDocument bibliography() {
+		return this.bibliography;
+	}
+}
+
+class Wikipedia implements IDocument{
+	author author;
+	String title;
+	ILoDocument bibliography;
+	String url;
+	
+	Wikipedia(author author, String title, ILoDocument bibliography, String url){
+		this.author = author;
+		this.title = title;
+		this.bibliography = bibliography;
+		this.url = url;
+	}
+	
+	
+	public String formatOnlyBooks(){
+		return "";
+	}
+	
+	public ILoString onlyBooks() {
+		 return this.bibliography.onlyBooks(); 
+	}
+	
+	public boolean isBook() {
+		return false;
+	}
+	
+
+	
+	public IDocument filterBook() {
+		return new Wikipedia(this.author,this.title,this.bibliography.filterBook(),this.url);
+	}
+	
+	public ILoDocument bibliography() {
+		return this.bibliography;
+	}
+	
+}
+
+
+interface ILoDocument {
+	ILoString onlyBooks();
+	ILoString onlyBooksHelper();
+	ILoDocument filterBook();
+	
+	
+	
+}
+
+class MtLoIDocument implements ILoDocument {
+	public ILoString onlyBooks() {
+		return new MtLoString();
+	}
+	public ILoDocument filterBook() {
+		return new MtLoIDocument();
+	}
+	
+	public ILoString onlyBooksHelper() {
+		return new MtLoString();
+	}
+	public ILoDocument rowBook() {
+		return new MtLoIDocument();
+	}
+	
+	public ILoDocument append(ILoDocument other) {
+		return other;
+	}
+	
+
+	
+ }
+ 
+class ConsIDocument implements ILoDocument {
+	IDocument frist;
+	ILoDocument rest;
+	
+	ConsIDocument(IDocument first ,ILoDocument rest){
+		this.frist = first;
+		this.rest = rest;
+	}
+	
+	public ILoString onlyBooks() {
+		 return this.filterBook().onlyBooksHelper();
+	}
+	
+	public ILoString onlyBooksHelper() {
+		ILoString s = new MtLoString();
+		return   s.AppendLoString(this.frist.onlyBooks(), this.rest.onlyBooks());
+	}
+	
+	public ILoDocument filterBook() {
+		if(this.frist.isBook()) {
+			return new ConsIDocument(this.frist.filterBook(),this.rest.filterBook());
+		}else {
+			
+		}return this.rest.filterBook();
+		
+	}
+	
+	
+	
+	
+ }
+
+
+
+interface ILoString{
+	public ILoString AppendLoString(ILoString f1 ,ILoString f2);
+	 String Frist();
+	 ILoString Rest();
+	// insert item into sorted list by Alphabetized of the last name of the author
+	 ILoString insert(String item,ILoString sortedList);
+	// insert item into sorted list by Alphabetized of the last name of the author
+	ILoString insert(String item);
+	// sort the list a Alphabetized
+	ILoString Sort();
+	// produce true if the item in the list 
+	boolean Contain(String item);
+	// produce ILoString without any duplicates item
+	ILoString RemoveDuplicates();
+	
+	 ILoString RemoveDuplicatesHelper(ILoString unique);
+	 // append item at the of the list
+	 ILoString appendAtEnd(String item);
+	 
+}
+
+class MtLoString implements ILoString{
+	public ILoString AppendLoString(ILoString f1 ,ILoString f2) {
+		if (MtLoString.class.isInstance(f1)) {
+			return f2;
+		}else {
+			return f1;
+		}
+	}
+	
+	
+	public String Frist() {
+		return "";
+	}
+	
+	public ILoString Rest() {
+		return new MtLoString();
+	}
+	
+	
+	
+	public ILoString insert(String item,ILoString sortedList) {
+		
+		return new ConsLoString(item,this);
+	}
+	public ILoString insert(String item) {
+		
+		return this.insert(item, this);
+	}
+	
+	public ILoString Sort() {
+		return this;
+	}
+	
+	public 	boolean Contain(String item){
+		return false;
+	}
+	public ILoString RemoveDuplicates() {
+		return this;
+	}
+	public ILoString RemoveDuplicatesHelper(ILoString unique) {
+		return unique;
+	}
+	public ILoString appendAtEnd(String item) {
+		return new ConsLoString(item,this);
+	}
+}
+
+class ConsLoString implements ILoString{
+	String first;
+	ILoString rest;
+	ConsLoString(String first, ILoString rest){
+		this.first = first;
+		this.rest = rest;
+	}
+	public String Frist() {
+		return this.first;
+	}
+	
+	public ILoString Rest() {
+		return this.rest;
+	}
+	public ILoString AppendLoString(ILoString f1 ,ILoString f2) {
+		return  new ConsLoString(f1.Frist(),this.AppendLoString(f1.Rest(), f2));
+	}
+
+	public ILoString insert(String item,ILoString sortedList) {
+		
+		if (this.first.compareTo(item) < 0) {
+			return new ConsLoString(this.first,this.rest.insert(item));
+		}else { 
+			// return this if the item equal or before
+			return new ConsLoString(item,this);
+		}
+		
+	}
+	
+	public ILoString insert(String item) {
+		
+		return this.insert(item, this);
+	}
+	
+	/* fields:
+	 * ... this.first               ... --- String 
+	 * ... this.rest                ... --- ILoString
+	 * 
+	 * 
+	 * Methods:
+	 * ... this.First()                                             ... --- String
+	 * ... this.Rest()                                              ... --- ILoString
+	 * ... this.AppendLoString(ILoString f1 ,ILoString f2)			... --- ILoString
+	 * ... this.insert(String item,ILoString sortedList)            ... --- ILoString
+	 * ... this.insert(String item)                                 ... --- ILoString
+	 * ... this.sort()                                              ... --- ILoString
+	 * Methods Fields:
+	 * ... this.rest.First()                                             ... --- String
+	 * ... this.rest.Rest()                                              ... --- ILoString
+	 * ... this.rest.AppendLoString(ILoString f1 ,ILoString f2)			 ... --- ILoString
+	 * ... this.rest.insert(String item,ILoString sortedList)            ... --- ILoString
+	 * ... this.rest.insert(String item)                                 ... --- ILoString
+	 * ... this.rest.sort()                                              ... --- ILoString
+	 * 
+	 */
+	// sort the list a Alphabetized
+	public ILoString Sort() {
+		// notes we insert into sorted list
+		return this.rest.Sort().insert(this.first);
+	}
+	
+	/* fields:
+	 * ... this.first               ... --- String 
+	 * ... this.rest                ... --- ILoString
+	 * 
+	 * 
+	 * Methods:
+	 * ... this.First()                                             ... --- String
+	 * ... this.Rest()                                              ... --- ILoString
+	 * ... this.AppendLoString(ILoString f1 ,ILoString f2)			... --- ILoString
+	 * ... this.insert(String item,ILoString sortedList)            ... --- ILoString
+	 * ... this.insert(String item)                                 ... --- ILoString
+	 * ... this.Sort()                                              ... --- ILoString
+	 * ... this.Contain(String item) 								... --- boolean
+	 * Methods Fields:
+	 * ... this.rest.First()                                             ... --- String
+	 * ... this.rest.Rest()                                              ... --- ILoString
+	 * ... this.rest.AppendLoString(ILoString f1 ,ILoString f2)			 ... --- ILoString
+	 * ... this.rest.insert(String item,ILoString sortedList)            ... --- ILoString
+	 * ... this.rest.insert(String item)                                 ... --- ILoString
+	 * ... this.rest.Sort()                                              ... --- ILoString
+	 * ... this.rest.Contain(String item) 		                         ... --- boolean
+	 * 
+	 */
+	public 	boolean Contain(String item){
+		if (this.first.equals(item)) {
+			return true;
+		}else {
+			return this.rest.Contain(item);
+		}
+	}
+	
+	
+	/* fields:
+	 * ... this.first               ... --- String 
+	 * ... this.rest                ... --- ILoString
+	 * 
+	 * 
+	 * Methods:
+	 * ... this.First()                                             ... --- String
+	 * ... this.Rest()                                              ... --- ILoString
+	 * ... this.AppendLoString(ILoString f1 ,ILoString f2)			... --- ILoString
+	 * ... this.insert(String item,ILoString sortedList)            ... --- ILoString
+	 * ... this.insert(String item)                                 ... --- ILoString
+	 * ... this.Sort()                                              ... --- ILoString
+	 * ... this.Contain(String item) 								... --- boolean
+	 * ... this.RemoveDuplicates( 								    ... --- ILoString
+	 * Methods Fields:
+	 * ... this.rest.First()                                             ... --- String
+	 * ... this.rest.Rest()                                              ... --- ILoString
+	 * ... this.rest.AppendLoString(ILoString f1 ,ILoString f2)			 ... --- ILoString
+	 * ... this.rest.insert(String item,ILoString sortedList)            ... --- ILoString
+	 * ... this.rest.insert(String item)                                 ... --- ILoString
+	 * ... this.rest.Sort()                                              ... --- ILoString
+	 * ... this.rest.Contain(String item) 		                         ... --- boolean
+	 * ... this.rest.RemoveDuplicates()								     ... --- ILoString
+	 * 
+	 */
+	
+	public ILoString RemoveDuplicates() {
+		ILoString unique = new MtLoString();
+		
+		return this.RemoveDuplicatesHelper(unique);
+		
+		
+	}
+	
+	public ILoString RemoveDuplicatesHelper(ILoString unique) {
+		if (!unique.Contain(this.first)){
+		return this.rest.RemoveDuplicatesHelper(unique.appendAtEnd(this.first)));
+		}else {
+			return  this.rest.RemoveDuplicatesHelper(unique);
+		}
+		
+		
+	}
+	
+	public ILoString appendAtEnd(String item) {
+		return new ConsLoString(this.first,this.rest.appendAtEnd(item));
+	}
+	
+	
+	
+	
+}
+
+
+
+class ExamplesDocuments{
+	ExamplesDocuments(){}
+	
+	author auMohamed = new author("mohamed", "ramadan");
+	author auMike = new author("mike", "okey");
+	author auzik= new author("zik", "marik");
+	
+	ILoDocument MtLoDocumebt = new MtLoIDocument();
+	
+	IDocument book1 = new Book(auMohamed,"book1",MtLoDocumebt,"publishers1");
+	
+	ILoDocument paper1 = new ConsIDocument(book1,MtLoDocumebt);
+	
+	IDocument awik = new Wikipedia(auMike,"my awik",MtLoDocumebt,"http:://url.com");
+	
+	ILoDocument paper2 = new ConsIDocument(book1,new ConsIDocument(awik,MtLoDocumebt));
+	
+
+	
+	IDocument cbook = new Book(auzik,"cbook",paper2,"publishers3");
+	
+	ILoDocument paper3 = new ConsIDocument(cbook,MtLoDocumebt);
+	
+	
+	IDocument dbook = new Book(auMike,"dbook",paper3,"publishers4");
+	
+	ILoDocument paper4 = new ConsIDocument(dbook,MtLoDocumebt);
+	
+	ILoDocument paper2F = new ConsIDocument(book1,new MtLoIDocument());
+	IDocument cbookF = new Book(auzik,"cbook",paper2F,"publishers3");
+	ILoDocument paper3F = new ConsIDocument(cbookF,MtLoDocumebt);
+	
+	
+	
+	boolean testBookFormatOnlyBooks(Tester t) {
+		return t.checkExpect(book1.formatOnlyBooks(),"ramadan, mohamed. 'book1'") && 
+				t.checkExpect(awik.formatOnlyBooks(),"");
+	}
+	
+	
+
+	
+	boolean testIDocumentIsBook(Tester t) {
+		return t.checkExpect(book1.isBook(),true)&&
+				t.checkExpect(awik.isBook(),false); 
+				
+	}
+	
+
+	
+	
+	boolean testILoDocumentFilterBook(Tester t) {
+		return t.checkExpect(paper1.filterBook(),paper1) &&
+				 t.checkExpect(paper2.filterBook(),new ConsIDocument(book1, new MtLoIDocument())) &&
+				 t.checkExpect(paper3.filterBook(),paper3F)&&
+				 t.checkExpect(paper4.filterBook(), 
+						 new ConsIDocument(
+								 new Book(auMike,"dbook",paper3F,"publishers4"),MtLoDocumebt)
+						 );
+				
+	}
+	
+
+	
+	
+	boolean testILoDocumentOnlyBooks(Tester t) {
+		return t.checkExpect(MtLoDocumebt.onlyBooks(),new MtLoString()) && 
+				t.checkExpect(paper1.onlyBooks(),new ConsLoString("ramadan, mohamed. 'book1'",new MtLoString()))&&
+		  		t.checkExpect(paper2.onlyBooks(),new ConsLoString("ramadan, mohamed. 'book1'",new MtLoString())) &&
+		  		t.checkExpect(paper4.onlyBooks(), 
+		  				new ConsLoString("okey, mike. 'dbook'",
+		  			    new ConsLoString("marik, zik. 'cbook'",
+		  			    new ConsLoString("ramadan, mohamed. 'book1'", new MtLoString()))));
+	}
+	
+	
+	
+	boolean testILoDocumentInsert(Tester t) {
+		return t.checkExpect(MtLoDocumebt.onlyBooks().insert("ramadan, mohamed. 'book1'"),
+						new ConsLoString("ramadan, mohamed. 'book1'",new MtLoString())) &&
+				t.checkExpect(paper1.onlyBooks().insert("okey, mike. 'dbook'"), 
+						new ConsLoString("okey, mike. 'dbook'"  ,
+								new ConsLoString("ramadan, mohamed. 'book1'",new MtLoString()))) &&
+				t.checkExpect(paper4.onlyBooks().insert("qimu, sliol. 'css'"),
+						new ConsLoString("okey, mike. 'dbook'",
+				  			    new ConsLoString("marik, zik. 'cbook'",
+				  			    new ConsLoString("qimu, sliol. 'css'",
+				  			    new ConsLoString("ramadan, mohamed. 'book1'", new MtLoString())))));
+				}
+	
+	
+	boolean testILoDocumentSort(Tester t) {
+		return t.checkExpect(MtLoDocumebt.onlyBooks().Sort(),MtLoDocumebt.onlyBooks()) &&
+			   t.checkExpect(paper1.onlyBooks(),paper1.onlyBooks().Sort()) &&
+			   t.checkExpect(paper4.onlyBooks().Sort(),
+					   new ConsLoString("marik, zik. 'cbook'",
+					   new ConsLoString("okey, mike. 'dbook'",
+		  			    new ConsLoString("ramadan, mohamed. 'book1'", new MtLoString()))));
+	}
+	
+	
+	
+	boolean testILoDocumentContain(Tester t) {
+		return t.checkExpect(MtLoDocumebt.onlyBooks().Contain("marik, zik. 'cbook'"),false) &&
+				t.checkExpect(paper1.onlyBooks().Contain("okey, mike. 'dbook'"), false) &&
+				t.checkExpect(paper1.onlyBooks().Contain("ramadan, mohamed. 'book1'"), true) && 
+				t.checkExpect(paper4.onlyBooks().Contain("okey, mike. 'dbook'"), true) &&
+				t.checkExpect(paper4.onlyBooks().Contain("qimu, sliol. 'css'"), false);
+				
+	}
+	
+	boolean testILoDocumentRemoveDuplicates(Tester t) {
+		return t.checkExpect(MtLoDocumebt.onlyBooks().RemoveDuplicates(), MtLoDocumebt.onlyBooks()) &&
+				t.checkExpect(paper1.onlyBooks().RemoveDuplicates(), paper1.onlyBooks())&&
+				
+				t.checkExpect( new ConsLoString("marik, zik. 'cbook'",
+					   new ConsLoString("okey, mike. 'dbook'",
+		  			   new ConsLoString("marik, zik. 'cbook'", 
+		  					   new ConsLoString("ramadan, mohamed. 'book1'",
+		  							 new ConsLoString("okey, mike. 'dbook'", new MtLoString()))))).RemoveDuplicates(), 
+						
+						 new ConsLoString("marik, zik. 'cbook'",
+								   new ConsLoString("okey, mike. 'dbook'",
+					  			    new ConsLoString("ramadan, mohamed. 'book1'", new MtLoString()))));
+				}
+	
+	boolean testILoDocumentAppendAtEnd(Tester t) {
+			return t.checkExpect(MtLoDocumebt.onlyBooks().appendAtEnd("marik, zik. 'cbook'"),  
+					new ConsLoString("marik, zik. 'cbook'", new MtLoString())) &&
+				
+				t.checkExpect( paper1.onlyBooks().appendAtEnd("qimu, sliol. 'css'") ,
+						 new ConsLoString("marik, zik. 'cbook'",
+								   new ConsLoString("okey, mike. 'dbook'",
+					  			    new ConsLoString("ramadan, mohamed. 'book1'", 
+					  			    		 new ConsLoString("qimu, sliol. 'css'", new MtLoString())))));
+			}
+	
+	
+}
+

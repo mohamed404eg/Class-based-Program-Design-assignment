@@ -1,0 +1,248 @@
+
+import tester.*;
+
+
+
+class author {
+	String firstName;
+	String lastName;
+	
+	author(String firstName, String lastName){
+		this.firstName = firstName;
+		this.lastName =  lastName;
+
+	}
+}
+
+
+interface IDocument {
+	// produce Format the entries as “Last name, First name. "Title".”
+	String formatOnlyBooks();
+	 ILoDocument bibliography();
+	boolean isBook();
+	IDocument filterBook();
+}
+
+
+class Book implements IDocument{
+	author author;
+	String title;
+	ILoDocument bibliography;
+	String publishers;
+	
+	Book(author author, String title, ILoDocument bibliography, String publishers){
+		this.author = author;
+		this.title = title;
+		this.bibliography = bibliography;
+		this.publishers = publishers;
+	}
+	
+	public String formatOnlyBooks(){
+		return this.author.lastName +", "+ this.author.firstName+". "+"'"+this.title+"'";
+	}
+	
+	
+	public ILoDocument bibliography(ILoDocument other) {
+		return this.bibliography.append(other);
+	}
+	
+	public boolean isBook() {
+		return true;
+	}
+	
+	public IDocument filterBook() {
+		return new Book(this.author,this.title,this.bibliography.filterBook(),this.publishers);
+	}
+}
+
+class Wikipedia implements IDocument{
+	author author;
+	String title;
+	ILoDocument bibliography;
+	String url;
+	
+	Wikipedia(author author, String title, ILoDocument bibliography, String url){
+		this.author = author;
+		this.title = title;
+		this.bibliography = bibliography;
+		this.url = url;
+	}
+	
+	
+	public String formatOnlyBooks(){
+		return "";
+	}
+	
+	public ILoString onlyBooks() {
+		return this.bibliography.onlyBooks();
+	}
+	
+	public boolean isBook() {
+		return false;
+	}
+	
+	public ILoDocument bibliography() {
+		return this.bibliography;
+	}
+	
+	public IDocument filterBook() {
+		return new Book(this.author,this.title,this.bibliography.filterBook(),this.url);
+	}
+	
+}
+
+
+interface ILoDocument {
+	ILoString onlyBooks();
+	ILoString onlyBooksHelper();
+	ILoDocument filterBook();
+	
+}
+
+class MtLoIDocument implements ILoDocument {
+	public ILoString onlyBooks() {
+		return new MtLoString();
+	}
+	public ILoDocument filterBook() {
+		return new MtLoIDocument();
+	}
+	
+	public ILoString onlyBooksHelper() {
+		return new MtLoString();
+	}
+	public ILoDocument rowBook() {
+		return new MtLoIDocument();
+	}
+	
+	public ILoDocument append(ILoDocument other) {
+		return other;
+	}
+ }
+ 
+class ConsIDocument implements ILoDocument {
+	IDocument frist;
+	ILoDocument rest;
+	
+	ConsIDocument(IDocument first ,ILoDocument rest){
+		this.frist = first;
+		this.rest = rest;
+	}
+	
+	public ILoString onlyBooks() {
+		return this.filterBook().onlyBooksHelper();
+	}
+	
+	public ILoString onlyBooksHelper() {
+		return new ConsLoString(this.frist.formatOnlyBooks(),this.rest.onlyBooksHelper());
+	}
+	
+	public ILoDocument filterBook() {
+		if(this.frist.isBook()) {
+			return new ConsIDocument(this.frist.filterBook(),this.rest.filterBook());
+		}else {
+			
+		}return this.rest.filterBook();
+		
+	}
+	
+
+	
+	
+ }
+
+
+
+interface ILoString{
+	
+}
+
+class MtLoString implements ILoString{
+	
+}
+
+class ConsLoString implements ILoString{
+	String first;
+	ILoString rest;
+	ConsLoString(String first, ILoString rest){
+		this.first = first;
+		this.rest = rest;
+	}
+}
+
+
+class ExamplesDocuments{
+	ExamplesDocuments(){}
+	
+	author auMohamed = new author("mohamed", "ramadan");
+	author auMike = new author("mike", "okey");
+	author auzik= new author("zik", "marik");
+	
+	ILoDocument MtLoDocumebt = new MtLoIDocument();
+	
+	IDocument book1 = new Book(auMohamed,"book1",MtLoDocumebt,"publishers1");
+	
+	ILoDocument paper1 = new ConsIDocument(book1,MtLoDocumebt);
+	
+	IDocument awik = new Wikipedia(auMike,"my awik",MtLoDocumebt,"http:://url.com");
+	
+	ILoDocument paper2 = new ConsIDocument(book1,new ConsIDocument(awik,MtLoDocumebt));
+	
+
+	
+	IDocument cbook = new Book(auzik,"cbook",paper2,"publishers3");
+	
+	ILoDocument paper3 = new ConsIDocument(cbook,MtLoDocumebt);
+	
+	
+	IDocument dbook = new Book(auMike,"dbook",paper3,"publishers4");
+	
+	ILoDocument paper4 = new ConsIDocument(dbook,MtLoDocumebt);
+	
+	ILoDocument paper2F = new ConsIDocument(book1,new MtLoIDocument());
+	IDocument cbookF = new Book(auzik,"cbook",paper2F,"publishers3");
+	ILoDocument paper3F = new ConsIDocument(cbookF,MtLoDocumebt);
+	
+	
+	
+	boolean testBookFormatOnlyBooks(Tester t) {
+		return t.checkExpect(book1.formatOnlyBooks(),"ramadan, mohamed. 'book1'") && 
+				t.checkExpect(awik.formatOnlyBooks(),"");
+	}
+	
+	
+
+	
+	boolean testIDocumentIsBook(Tester t) {
+		return t.checkExpect(book1.isBook(),true)&&
+				t.checkExpect(awik.isBook(),false); 
+				
+	}
+	
+
+	
+	
+	boolean testILoDocumentFilterBook(Tester t) {
+		return t.checkExpect(paper1.filterBook(),paper1) &&
+				 t.checkExpect(paper2.filterBook(),new ConsIDocument(book1, new MtLoIDocument())) &&
+				 t.checkExpect(paper3.filterBook(),paper3F);
+				
+	}
+	
+	
+	
+	
+	boolean testILoDocumentOnlyBooks(Tester t) {
+		return t.checkExpect(MtLoDocumebt.onlyBooks(),new MtLoString()) && 
+				t.checkExpect(paper1.onlyBooks(),new ConsLoString("ramadan, mohamed. 'book1'",new MtLoString()))&&
+		  		t.checkExpect(paper2.onlyBooks(),new ConsLoString("ramadan, mohamed. 'book1'",new MtLoString())) &&
+		  		t.checkExpect(paper4.onlyBooks(), 
+		  				new ConsLoString("okey, mike. 'dbook'",
+		  			    new ConsLoString("marik, zik. 'cbook'",
+		  			    new ConsLoString("ramadan, mohamed. 'book1'", new MtLoString()))));
+	}
+	
+	
+
+	
+}
+

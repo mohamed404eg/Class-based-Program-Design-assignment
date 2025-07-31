@@ -1,0 +1,13 @@
+
+import tester.*;
+
+interface ILoNumber() {
+	
+}
+
+
+class MtLoNumber() {
+	
+}
+
+

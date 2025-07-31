@@ -1,0 +1,70 @@
+import tester.*;
+
+interface ILoNumber{
+	// produce true if the list contain any even number
+	boolean ContainEven();
+	// produce true if the any number in the list positive and odd
+	boolean  ContainPositiveAndOdd();
+	boolean ContainNumber5and10();
+}
+
+
+class MtLoNumber implements ILoNumber{
+	public boolean ContainEven() {
+		return false;
+	}
+	
+	public boolean  ContainPositiveAndOdd() {
+		return false;
+	}
+	public boolean ContainNumber5and10() {
+		return false;
+	}
+}
+
+
+class ConsLoNumber implements ILoNumber{
+	int first;
+	ILoNumber rest;
+	
+	ConsLoNumber(int first, ILoNumber rest){
+		this.first = first;
+		this.rest = rest;
+	}
+	public boolean ContainEven() {
+		return ((this.first % 2) == 0) || this.rest.ContainEven();
+	}
+	public boolean  ContainPositiveAndOdd() {
+		return (!((this.first % 2) == 0) && (this.first > 0)) || this.rest.ContainPositiveAndOdd()  ;
+	}
+	public boolean ContainNumber5and10() {
+		return (this.first >= 5 && this.first <= 10) || this.rest.ContainNumber5and10();
+	}
+}
+
+
+class ExmaplesLoNumber{
+	ExmaplesLoNumber(){}
+	
+	ILoNumber l1 = new ConsLoNumber(6,new ConsLoNumber(5,new MtLoNumber()));
+	ILoNumber l2 = new ConsLoNumber(4,new ConsLoNumber(3,new MtLoNumber()));
+	
+	
+	boolean testILoNumberContainEven(Tester t) {
+		return t.checkExpect(l1.ContainEven(), true) &&
+				t.checkExpect( new ConsLoNumber(11,new ConsLoNumber(5,new MtLoNumber())).ContainEven(), false);		
+	}
+	boolean testILoNumberContainPositiveAndOdd(Tester t) {
+		return t.checkExpect(l1.ContainPositiveAndOdd(), true) &&
+				t.checkExpect(new ConsLoNumber(-11,new ConsLoNumber(6,new MtLoNumber())).ContainPositiveAndOdd(), false) &&
+				t.checkExpect(new ConsLoNumber(11,new ConsLoNumber(12,new MtLoNumber())).ContainPositiveAndOdd(), true);	
+	}
+	boolean testILoNumberContainNumber5and10(Tester t) {
+		return t.checkExpect(l1.ContainNumber5and10(), true) &&
+				t.checkExpect(new ConsLoNumber(-11,new ConsLoNumber(6,new MtLoNumber())).ContainNumber5and10(), true) &&
+				t.checkExpect(new ConsLoNumber(11,new ConsLoNumber(12,new MtLoNumber())).ContainNumber5and10(), false);	
+	}
+	
+	
+	
+}
